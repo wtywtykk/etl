@@ -48,6 +48,11 @@ namespace etl
     {
       access = xSemaphoreCreateMutexStatic(&mutex_allocation);
     }
+    
+    ~mutex()
+    {
+      vSemaphoreDelete(access);
+    }
 
     void lock()
     {
@@ -75,6 +80,52 @@ namespace etl
     // The mutex handle itself
     SemaphoreHandle_t access;
   };
+  //***************************************************************************
+  ///\ingroup recursive_mutex
+  ///\brief This recursive_mutex class is implemented using FreeRTOS's recursive mutexes
+  //***************************************************************************
+  #if (configUSE_RECURSIVE_MUTEXES == 1)
+  class recursive_mutex
+  {
+  public:
+
+    recursive_mutex ()
+    {
+      access = xSemaphoreCreateRecursiveMutexStatic(&mutex_allocation);
+    }
+
+    ~recursive_mutex()
+    {
+      vSemaphoreDelete(access);
+    }
+
+    void lock()
+    {
+      xSemaphoreTake(access, portMAX_DELAY); // portMAX_DELAY=block forever
+    }
+
+    bool try_lock()
+    {
+      return xSemaphoreTake(access, 0) == pdTRUE;
+    }
+
+    void unlock()
+    {
+      xSemaphoreGive(access);
+    }
+
+   private:
+    // Non-copyable
+    recursive_mutex(const recursive_mutex&) ETL_DELETE;
+    recursive_mutex& operator=(const recursive_mutex&) ETL_DELETE;
+
+    // Memory to hold the mutex
+    StaticSemaphore_t mutex_allocation;
+  
+    // The mutex handle itself
+    SemaphoreHandle_t access;
+  };
+#endif
 }
 
 #endif

@@ -40,6 +40,11 @@ namespace etl
   ///\brief This mutex class is implemented using std::mutex.
   //***************************************************************************
   using mutex = std::mutex;
+  //***************************************************************************
+  ///\ingroup recursive_mutex
+  ///\brief This recursive_mutex class is implemented using std::recursive_mutex.
+  //***************************************************************************
+  using recursive_mutex = std::recursive_mutex;
 }
 
 #endif
